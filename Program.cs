@@ -10,6 +10,12 @@ string input = string.Empty;
 try
 {
     checkAndCreateFile();
+    do
+    {
+        ShowMainMenu();
+        input = Console.ReadLine();
+        chooseMainMenuOption(input.Trim());
+    } while (input != "9");
 }
 catch (Exception ex)
 {
@@ -17,12 +23,7 @@ catch (Exception ex)
 }
 
 // Show main menu and handle user input until the user chooses to exit
-do
-{
-    ShowMainMenu();
-    input = Console.ReadLine();
-    chooseMainMenuOption(input.Trim());
-} while (input != "9");
+
 
 // Display the main menu options
 void ShowMainMenu()
@@ -46,7 +47,7 @@ void chooseMainMenuOption(string input)
             break;
         case "2":
             Console.WriteLine("Viewing products...");
-            // Code to view products
+            viewProducts();
             break;
         case "3":
             Console.WriteLine("Searching products...");
@@ -65,11 +66,12 @@ void chooseMainMenuOption(string input)
     }
 }
 
-// Add a new product. TODO: Implement product addition either to a list or a file.
+// Add a new product.
 void addProduct()
 {
     Console.WriteLine("Enter product name:");
     string name = Console.ReadLine();
+    name = name.ToUpper();
 
     try
     {
@@ -100,10 +102,38 @@ void savetoProductFile(string product)
         showErrorMessage($"Error writing to file: {ex.Message}");
     }
 }
-//TODO: Display a list of products. This could be implemented by reading from a file or a stored in a variable. For now, is just print a placeholder message.
+// Display a list of products or throw an exception. If the file is empty, display a warning message.
 void viewProducts()
 {
-    Console.WriteLine("Product list:");
+    try
+    {
+        string programFolder = AppContext.BaseDirectory;
+        string filePath = Path.Combine(programFolder, "products.txt");
+        if (File.Exists(filePath))
+        {
+            string[] products = File.ReadAllLines(filePath);
+            if(products.Length > 0) {
+                Console.WriteLine("\n==== Product List: ====");
+                foreach (string product in products)
+                {
+                    Console.WriteLine(product);
+                }
+                Console.WriteLine("==== End of List ====\n");
+            }
+            else
+            {
+                showWarningMessage("No products found.\n");
+            }
+        }
+        else
+        {
+            showErrorMessage("The product file is not found!\nContat System Administrator!");
+        }    
+    }
+    catch (Exception ex)
+    {
+        showErrorMessage($"Error reading from file: {ex.Message}");
+    }
 }
 
 //TODO: Implement product search functionality. This could involve searching through a list or reading from a file. For now, is just print a placeholder message.
