@@ -1,14 +1,27 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 Console.WriteLine("Product list manager");
 
 string input = string.Empty;
+// On startup, check if the products.txt file exists in the program directory. If it doesn't, create it.
+try
+{
+    checkAndCreateFile();
+}
+catch (Exception ex)
+{
+    showErrorMessage($"Error checking/creating file: {ex.Message}");
+}
+
 // Show main menu and handle user input until the user chooses to exit
 do
 {
     ShowMainMenu();
     input = Console.ReadLine();
-    chooseMainMenuOption(input);
+    chooseMainMenuOption(input.Trim());
 } while (input != "9");
 
 // Display the main menu options
@@ -24,7 +37,7 @@ void ShowMainMenu()
 // Handle the user's choice from the main menu
 void chooseMainMenuOption(string input)
 {
-    
+
     switch (input)
     {
         case "1":
@@ -61,7 +74,7 @@ void addProduct()
     try
     {
         productNameValidation(name);
-        showSuccessMessage($"Product '{name}' is added successfully.");
+        savetoProductFile(name);
     }
     catch (ArgumentException ex)
     {
@@ -69,6 +82,24 @@ void addProduct()
     }
 }
 
+// Save a product to the product file
+void savetoProductFile(string product)
+{
+    string programFolder = AppContext.BaseDirectory;
+    string filePath = Path.Combine(programFolder, "products.txt");
+    try
+    {
+        using (StreamWriter sw = new StreamWriter(filePath, true))
+        {
+            sw.WriteLine(product);
+        }
+        showSuccessMessage($"Product {product} saved to file successfully.");
+    }
+    catch (Exception ex)
+    {
+        showErrorMessage($"Error writing to file: {ex.Message}");
+    }
+}
 //TODO: Display a list of products. This could be implemented by reading from a file or a stored in a variable. For now, is just print a placeholder message.
 void viewProducts()
 {
@@ -91,18 +122,13 @@ void deleteProduct()
     // Code to remove the product from the list
 }
 
-//TODO: In case of implementing a file-based storage.
-void saveProductsToFile()
-{
-}
-
 //Validate the product name using a regular expression. The product name must start with alphabetical letters, followed by a dash and a number between 200 and 500.
 void productNameValidation(string product)
 {
     string pattern = @"^[A-Za-z]+-(?:2\d{2}|3\d{2}|4\d{2}|500)$";
     if (Regex.IsMatch(product, pattern))
     {
-        Console.WriteLine("Valid product name.");
+        showSuccessMessage("Success. Checking path");
     }
     else
     {
@@ -131,3 +157,26 @@ void showWarningMessage(string message)
     Console.WriteLine(message);
     Console.ResetColor();
 }
+
+
+// Check if a file exists and create it if it doesn't. 
+void checkAndCreateFile()
+{
+    string programFolder = AppContext.BaseDirectory;
+    string filePath = Path.Combine(programFolder, "products.txt");
+    if (!File.Exists(filePath))
+    {
+        try
+        {
+            File.Create(filePath).Dispose();
+            showSuccessMessage("File 'products.txt' created successfully.");
+        }
+        catch (Exception ex)
+        {
+            showErrorMessage($"Error creating file: {ex.Message}");
+        }
+    }
+}
+
+
+
