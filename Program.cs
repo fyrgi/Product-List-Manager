@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
+﻿using System.Text.RegularExpressions;
 
 Console.WriteLine("Product list manager");
 
@@ -31,6 +28,7 @@ void showMainMenu()
     Console.WriteLine("2. View products");
     Console.WriteLine("3. Search products");
     Console.WriteLine("4. Remove product");
+    Console.WriteLine("5. Statistics");
     Console.WriteLine("9. Exit");
 }
 
@@ -55,6 +53,10 @@ void chooseMainMenuOption(string input)
         case "4":
             Console.WriteLine("Removing product...");
             deleteProduct();
+            break;
+        case "5":
+            Console.WriteLine("Showing statistics...");
+            showStatistics();
             break;
         case "9":
             Console.WriteLine("Exiting...");
@@ -120,7 +122,8 @@ void viewProducts()
         if (File.Exists(filePath))
         {
             string[] products = File.ReadAllLines(filePath);
-            if(products.Length > 0) {
+            sortDisplayProducts(products);
+            if (products.Length > 0) {
                 Console.WriteLine("\n==== Product List: ====");
                 foreach (string product in products)
                 {
@@ -168,6 +171,7 @@ void searchProducts()
                 showWarningMessage($"Product {searchName} not found.");
             } else
             {
+                sortDisplayProducts(searchResult);
                 Console.WriteLine("\n==== Products matching the Search ====");
                 foreach (string product in searchResult)
                 {
@@ -222,7 +226,7 @@ void deleteProduct()
 {
     Console.WriteLine("Enter product name to remove:");
     string name = Console.ReadLine().Trim().ToUpper();
-    string[] foundItem = searchStringAndAddToArray(false, name, File.ReadAllLines(Path.Combine(AppContext.BaseDirectory, productFileName)));
+    string[] foundItem = searchStringAndAddToArray(true, name, File.ReadAllLines(Path.Combine(AppContext.BaseDirectory, productFileName)));
 
     // If the product is found, remove it from the file. If not, display a warning message.
     if (foundItem.Length > 0)
@@ -245,6 +249,22 @@ void deleteProduct()
     else
     {
         showWarningMessage($"Product {name} not found.");
+    }
+}
+
+void showStatistics()
+{
+    string programFolder = AppContext.BaseDirectory;
+    string filePath = Path.Combine(programFolder, productFileName);
+    if (File.Exists(filePath))
+    {
+        string[] products = File.ReadAllLines(filePath);
+        int totalProducts = products.Length;
+        showSuccessMessage($"Total number of products: {totalProducts}\n");
+    }
+    else
+    {
+        showErrorMessage("The product file is not found!\nContact System Administrator!");
     }
 }
 
@@ -290,14 +310,20 @@ void checkAndCreateFile()
         try
         {
             File.Create(filePath).Dispose();
-            showSuccessMessage("File 'products.txt' created successfully.");
+            showSuccessMessage("File 'products.txt' created successfully.\n");
         }
         catch (Exception ex)
         {
-            showErrorMessage($"Error creating file: {ex.Message}");
+            showErrorMessage($"Error creating file: {ex.Message}\n");
         }
     }
 }
 
+// Sort an array of products in alphabetical order and ascending numbers.
+static string[] sortDisplayProducts(string[] products)
+{
+    Array.Sort(products, StringComparer.OrdinalIgnoreCase);
+    return products;
+}
 
 
