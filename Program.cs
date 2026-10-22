@@ -54,7 +54,7 @@ void chooseMainMenuOption(string input)
             break;
         case "4":
             Console.WriteLine("Removing product...");
-            //code to delete product
+            deleteProduct();
             break;
         case "9":
             Console.WriteLine("Exiting...");
@@ -75,7 +75,7 @@ void addProduct()
     try
     {
         productNameValidation(name);
-        string[] foundItem = searchStringAndAddToArray(name, File.ReadAllLines(Path.Combine(AppContext.BaseDirectory, productFileName)));
+        string[] foundItem = searchStringAndAddToArray(false, name, File.ReadAllLines(Path.Combine(AppContext.BaseDirectory, productFileName)));
         if(foundItem.Length > 0)
         {
             showWarningMessage($"Product {name} already exists in the list.");
@@ -109,6 +109,7 @@ void savetoProductFile(string product)
         showErrorMessage($"Error writing to file: {ex.Message}");
     }
 }
+
 // Display a list of products or throw an exception. If the file is empty, display a warning message.
 void viewProducts()
 {
@@ -160,7 +161,7 @@ void searchProducts()
             string[] searchResult = new string[0];
             bool found = false;
 
-            searchResult = searchStringAndAddToArray(searchName, products);
+            searchResult = searchStringAndAddToArray(false, searchName, products);
 
             if (searchResult.Length == 0)
             {
@@ -188,27 +189,63 @@ void searchProducts()
 }
 
 // Search for a string in an array of products and return an array of matching products.
-static string[] searchStringAndAddToArray(string search, string[] products)
+static string[] searchStringAndAddToArray(bool exactMatch,string search, string[] products)
 {
     string[] searchResult = new string[0];
-    foreach (string product in products)
+    if (exactMatch == true)
     {
-        if (product.Contains(search, StringComparison.OrdinalIgnoreCase))
+        foreach (string product in products)
         {
-            Array.Resize(ref searchResult, searchResult.Length + 1);
-            searchResult[searchResult.Length - 1] = product;
+            if (product.Equals(search, StringComparison.OrdinalIgnoreCase))
+            {
+                Array.Resize(ref searchResult, searchResult.Length + 1);
+                searchResult[searchResult.Length - 1] = product;
+            }
+        };
+    }
+    else
+    { 
+        foreach (string product in products)
+        {
+            if (product.Contains(search, StringComparison.OrdinalIgnoreCase))
+            {
+                Array.Resize(ref searchResult, searchResult.Length + 1);
+                searchResult[searchResult.Length - 1] = product;
+            }
         }
     }
-
     return searchResult;
 }
 
-//TODO: Implement product removal functionality. This could involve removing from a list or updating a file. For now, is just print a placeholder message.
+// Remove a product from the file.
 void deleteProduct()
 {
     Console.WriteLine("Enter product name to remove:");
-    string removeName = Console.ReadLine();
-    // Code to remove the product from the list
+    string name = Console.ReadLine().Trim().ToUpper();
+    string[] foundItem = searchStringAndAddToArray(false, name, File.ReadAllLines(Path.Combine(AppContext.BaseDirectory, productFileName)));
+
+    // If the product is found, remove it from the file. If not, display a warning message.
+    if (foundItem.Length > 0)
+    {
+        // Remove the product from the file
+        string programFolder = AppContext.BaseDirectory;
+        string filePath = Path.Combine(programFolder, productFileName);
+        try
+        {
+            var products = File.ReadAllLines(filePath).ToList();
+            products.RemoveAll(p => p.Equals(name, StringComparison.OrdinalIgnoreCase));
+            File.WriteAllLines(filePath, products);
+            showSuccessMessage($"Product {name} removed successfully.\n");
+        }
+        catch (Exception ex)
+        {
+            showErrorMessage($"Error removing product: {ex.Message}\n");
+        }
+    }
+    else
+    {
+        showWarningMessage($"Product {name} not found.");
+    }
 }
 
 //Validate the product name using a regular expression. The product name must start with alphabetical letters, followed by a dash and a number between 200 and 500.
@@ -242,7 +279,6 @@ void showWarningMessage(string message)
     Console.WriteLine(message);
     Console.ResetColor();
 }
-
 
 // Check if a file exists and create it if it doesn't. 
 void checkAndCreateFile()
