@@ -299,6 +299,7 @@ static string[] getProductNumbers(string[] products)
     return productNumbers.ToArray();
 }
 
+// Find the maximum, minimum and average product number from an array of product numbers.
 static int findMaxProductNumber(string[] productNumbers)
 {
     int maxNumber = 0;
@@ -346,6 +347,7 @@ static int findAverageProductNumber(string[] productNumbers)
 
     return count > 0 ? sum / count : 0;
 }
+
 //Validate the product name using a regular expression. The product name must start with alphabetical letters, followed by a dash and a number between 200 and 500.
 void productNameValidation(string product)
 {
@@ -355,34 +357,6 @@ void productNameValidation(string product)
         // Throw an exception if the product name is invalid for more elegant error handling.
         throw new ArgumentException("Invalid product name.\nA valid name starts with aphabetical letters, followed by a dash and a number between 200 and 500.\n");
     }    
-}
-
-void showErrorMessage(string message)
-{
-    Console.ForegroundColor = ConsoleColor.Red;
-    Console.WriteLine(message);
-    Console.ResetColor();
-}
-
-void showSuccessMessage(string message)
-{
-    Console.ForegroundColor = ConsoleColor.Green;
-    Console.WriteLine(message);
-    Console.ResetColor();
-}
-
-void showWarningMessage(string message)
-{
-    Console.ForegroundColor = ConsoleColor.Yellow;
-    Console.WriteLine(message);
-    Console.ResetColor();
-}
-
-void showInfoMessage(string message)
-{
-    Console.ForegroundColor = ConsoleColor.Cyan;
-    Console.WriteLine(message);
-    Console.ResetColor();
 }
 
 // Check if a file exists and create it if it doesn't. 
@@ -411,4 +385,31 @@ static string[] sortDisplayProducts(string[] products)
     return products;
 }
 
+// Display messages in different colors based on the type of message.
+void showErrorMessage(string message)
+{
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine(message);
+    Console.ResetColor();
+}
 
+void showSuccessMessage(string message)
+{
+    Console.ForegroundColor = ConsoleColor.Green;
+    Console.WriteLine(message);
+    Console.ResetColor();
+}
+
+void showWarningMessage(string message)
+{
+    Console.ForegroundColor = ConsoleColor.Yellow;
+    Console.WriteLine(message);
+    Console.ResetColor();
+}
+
+void showInfoMessage(string message)
+{
+    Console.ForegroundColor = ConsoleColor.Cyan;
+    Console.WriteLine(message);
+    Console.ResetColor();
+}
