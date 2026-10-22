@@ -61,11 +61,11 @@ void addProduct()
     try
     {
         productNameValidation(name);
-        Console.WriteLine($"Product '{name}' is added successfully.");
+        showSuccessMessage($"Product '{name}' is added successfully.");
     }
     catch (ArgumentException ex)
     {
-        Console.WriteLine(ex.Message);
+        showErrorMessage(ex.Message);
     }
 }
 
@@ -107,6 +107,27 @@ void productNameValidation(string product)
     else
     {
         // Throw an exception if the product name is invalid for more elegant error handling.
-        throw new ArgumentException("Invalid product name. A valid name starts with aphabetical letters, followed by a dash and a number between 200 and 500.");
+        throw new ArgumentException("Invalid product name.\nA valid name starts with aphabetical letters, followed by a dash and a number between 200 and 500.");
     }
+}
+
+void showErrorMessage(string message)
+{
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine(message);
+    Console.ResetColor();
+}
+
+void showSuccessMessage(string message)
+{
+    Console.ForegroundColor = ConsoleColor.Green;
+    Console.WriteLine(message);
+    Console.ResetColor();
+}
+
+void showWarningMessage(string message)
+{
+    Console.ForegroundColor = ConsoleColor.Yellow;
+    Console.WriteLine(message);
+    Console.ResetColor();
 }
