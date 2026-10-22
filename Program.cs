@@ -62,7 +62,7 @@ void chooseMainMenuOption(string input)
             Console.WriteLine("Exiting...");
             return;
         default:
-            Console.WriteLine("Invalid option. Please try again.");
+            showErrorMessage("Invalid option. Please try again.\n");
             break;
     }
 }
