@@ -75,7 +75,15 @@ void addProduct()
     try
     {
         productNameValidation(name);
-        savetoProductFile(name);
+        string[] foundItem = searchStringAndAddToArray(name, File.ReadAllLines(Path.Combine(AppContext.BaseDirectory, productFileName)));
+        if(foundItem.Length > 0)
+        {
+            showWarningMessage($"Product {name} already exists in the list.");
+            return;
+        } else
+        {
+            savetoProductFile(name);
+        }
     }
     catch (ArgumentException ex)
     {
