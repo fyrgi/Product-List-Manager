@@ -85,9 +85,15 @@ same console application.
 <img width="345" height="91" alt="image" src="https://github.com/user-attachments/assets/edd8245a-96fc-4933-9a9f-72c3f916876e" />
 <img width="306" height="182" alt="image" src="https://github.com/user-attachments/assets/97f8bfff-4f47-4fdc-afee-3cfb58729781" />
 
+## Problems that are not being solved in this program
 
+- Data normalization - the file can be manipulated manually and there is no way to guarantee the format of the data.
+  This problem will be solved with a database or if more checks are added to the code to make sure to sanitize the file first.
+- Too many functions. Min, Max and Average can be in one function returning an Array or List with values.
+- Inconsistencies with new lines on messages.
+- The program is not tested on other Operative systems.
 
-
+Although there problems are out of the scope of the task, they should be noted.
 
 
 
