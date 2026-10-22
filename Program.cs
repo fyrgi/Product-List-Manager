@@ -72,8 +72,7 @@ void chooseMainMenuOption(string input)
 void addProduct()
 {
     Console.WriteLine("Enter product name:");
-    string name = Console.ReadLine();
-    name = name.ToUpper();
+    string name = Console.ReadLine().Trim().ToUpper();
 
     try
     {
@@ -81,7 +80,7 @@ void addProduct()
         string[] foundItem = searchStringAndAddToArray(false, name, File.ReadAllLines(Path.Combine(AppContext.BaseDirectory, productFileName)));
         if(foundItem.Length > 0)
         {
-            showWarningMessage($"Product {name} already exists in the list.");
+            showWarningMessage($"Product {name} already exists in the list.\n");
             return;
         } else
         {
