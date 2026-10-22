@@ -5,6 +5,7 @@ using System.Xml.Linq;
 
 Console.WriteLine("Product list manager");
 
+string productFileName = "products.txt";
 string input = string.Empty;
 // On startup, check if the products.txt file exists in the program directory. If it doesn't, create it.
 try
@@ -12,21 +13,19 @@ try
     checkAndCreateFile();
     do
     {
-        ShowMainMenu();
+        // Show main menu and handle user input until the user chooses to exit
+        showMainMenu();
         input = Console.ReadLine();
         chooseMainMenuOption(input.Trim());
     } while (input != "9");
 }
 catch (Exception ex)
 {
-    showErrorMessage($"Error checking/creating file: {ex.Message}");
+    showErrorMessage($"The system terminates!\nError checking/creating file: {ex.Message}.");
 }
 
-// Show main menu and handle user input until the user chooses to exit
-
-
 // Display the main menu options
-void ShowMainMenu()
+void showMainMenu()
 {
     Console.WriteLine("1. Add product");
     Console.WriteLine("2. View products");
@@ -51,7 +50,7 @@ void chooseMainMenuOption(string input)
             break;
         case "3":
             Console.WriteLine("Searching products...");
-            // Code to search product
+            searchProducts();
             break;
         case "4":
             Console.WriteLine("Removing product...");
@@ -95,7 +94,7 @@ void savetoProductFile(string product)
         {
             sw.WriteLine(product);
         }
-        showSuccessMessage($"Product {product} saved to file successfully.");
+        showSuccessMessage($"Product {product} saved to file successfully.\n");
     }
     catch (Exception ex)
     {
@@ -136,12 +135,64 @@ void viewProducts()
     }
 }
 
-//TODO: Implement product search functionality. This could involve searching through a list or reading from a file. For now, is just print a placeholder message.
+// Search for all records matching a given string in the products.txt file. If found, display the product(s).
 void searchProducts()
 {
-    Console.WriteLine("Enter product name to search:");
-    string searchName = Console.ReadLine();
-    // Code to search for the product in the list
+    // Code to open the products.txt file and search for a product
+    try
+    {
+        string programFolder = AppContext.BaseDirectory;
+        string filePath = Path.Combine(programFolder, productFileName);
+        if (File.Exists(filePath))
+        {
+            Console.WriteLine("Enter product name to search:");
+
+            string searchName = Console.ReadLine().Trim().ToUpper();
+            string[] products = File.ReadAllLines(filePath);
+            string[] searchResult = new string[0];
+            bool found = false;
+
+            searchResult = searchStringAndAddToArray(searchName, products);
+
+            if (searchResult.Length == 0)
+            {
+                showWarningMessage($"Product {searchName} not found.");
+            } else
+            {
+                Console.WriteLine("\n==== Products matching the Search ====");
+                foreach (string product in searchResult)
+                {
+                    Console.WriteLine(product);
+                }
+                Console.WriteLine("==== End of Search Results ====\n");
+            }
+        }
+        else
+        {
+            showErrorMessage("The product file is not found!\nContact System Administrator!");
+        }
+
+    }
+    catch (Exception ex)
+    {
+        showErrorMessage($"Error searching for product: {ex.Message}");
+    }
+}
+
+// Search for a string in an array of products and return an array of matching products.
+static string[] searchStringAndAddToArray(string search, string[] products)
+{
+    string[] searchResult = new string[0];
+    foreach (string product in products)
+    {
+        if (product.Contains(search, StringComparison.OrdinalIgnoreCase))
+        {
+            Array.Resize(ref searchResult, searchResult.Length + 1);
+            searchResult[searchResult.Length - 1] = product;
+        }
+    }
+
+    return searchResult;
 }
 
 //TODO: Implement product removal functionality. This could involve removing from a list or updating a file. For now, is just print a placeholder message.
@@ -156,15 +207,11 @@ void deleteProduct()
 void productNameValidation(string product)
 {
     string pattern = @"^[A-Za-z]+-(?:2\d{2}|3\d{2}|4\d{2}|500)$";
-    if (Regex.IsMatch(product, pattern))
-    {
-        showSuccessMessage("Success. Checking path");
-    }
-    else
+    if (!Regex.IsMatch(product, pattern))
     {
         // Throw an exception if the product name is invalid for more elegant error handling.
-        throw new ArgumentException("Invalid product name.\nA valid name starts with aphabetical letters, followed by a dash and a number between 200 and 500.");
-    }
+        throw new ArgumentException("Invalid product name.\nA valid name starts with aphabetical letters, followed by a dash and a number between 200 and 500.\n");
+    }    
 }
 
 void showErrorMessage(string message)
