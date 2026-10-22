@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Collections;
+using System.Text.RegularExpressions;
 
 Console.WriteLine("Product list manager");
 
@@ -259,8 +260,23 @@ void showStatistics()
     if (File.Exists(filePath))
     {
         string[] products = File.ReadAllLines(filePath);
-        int totalProducts = products.Length;
-        showSuccessMessage($"Total number of products: {totalProducts}\n");
+        if(products.Length == 0)
+        {
+            showWarningMessage("No products found.\n");
+            return;
+        } else {
+            Console.WriteLine("\n==== Displaying statistics ==== ");
+            int totalProducts = products.Length;
+            showInfoMessage($"Total number of products: {totalProducts}");
+            string[] productNumbers = getProductNumbers(products);
+            int maxProductNumber = findMaxProductNumber(productNumbers);
+            showInfoMessage($"Maximum product number: {maxProductNumber}");
+            int minProductNumber = findMinProductNumber(productNumbers);
+            showInfoMessage($"Minimum product number: {minProductNumber}");
+            int averageProductNumber = findAverageProductNumber(productNumbers);
+            showInfoMessage($"Average product number: {averageProductNumber}");
+            Console.WriteLine("==== End of statistics ====\n");
+        }
     }
     else
     {
@@ -268,6 +284,68 @@ void showStatistics()
     }
 }
 
+// Extract product numbers from an array of products. The product number is the part after the dash in the product name.
+static string[] getProductNumbers(string[] products)
+{
+    List<string> productNumbers = new List<string>();
+    foreach (string product in products)
+    {
+        string[] parts = product.Split('-');
+        if (parts.Length == 2 && int.TryParse(parts[1], out int number))
+        {
+            productNumbers.Add(parts[1]);
+        }
+    }
+    return productNumbers.ToArray();
+}
+
+static int findMaxProductNumber(string[] productNumbers)
+{
+    int maxNumber = 0;
+    foreach (string productNumber in productNumbers)
+    {
+        if (int.TryParse(productNumber, out int number))
+        {
+            if (number > maxNumber)
+            {
+                maxNumber = number;
+            }
+        }
+    }
+    return maxNumber;
+}
+
+static int findMinProductNumber(string[] productNumbers)
+{
+    int minNumber = int.MaxValue;
+    foreach (string productNumber in productNumbers)
+    {
+        if (int.TryParse(productNumber, out int number))
+        {
+            if (number < minNumber)
+            {
+                minNumber = number;
+            }
+        }
+    }
+    return minNumber;
+}
+
+static int findAverageProductNumber(string[] productNumbers)
+{
+    int sum = 0;
+    int count = 0;
+    foreach (string productNumber in productNumbers)
+    {
+        if (int.TryParse(productNumber, out int number))
+        {
+            sum += number;
+            count++;
+        }
+    }
+
+    return count > 0 ? sum / count : 0;
+}
 //Validate the product name using a regular expression. The product name must start with alphabetical letters, followed by a dash and a number between 200 and 500.
 void productNameValidation(string product)
 {
@@ -296,6 +374,13 @@ void showSuccessMessage(string message)
 void showWarningMessage(string message)
 {
     Console.ForegroundColor = ConsoleColor.Yellow;
+    Console.WriteLine(message);
+    Console.ResetColor();
+}
+
+void showInfoMessage(string message)
+{
+    Console.ForegroundColor = ConsoleColor.Cyan;
     Console.WriteLine(message);
     Console.ResetColor();
 }
